@@ -1,0 +1,2 @@
+-- B-SIDE
+-- Script de criação do banco de dados.
