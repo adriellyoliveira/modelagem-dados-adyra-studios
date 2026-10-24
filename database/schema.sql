@@ -17,7 +17,21 @@ ALTER TABLE users
 ADD COLUMN coins INT NOT NULL DEFAULT 0,
 ADD COLUMN dimas INT NOT NULL DEFAULT 0,
 ADD COLUMN xp INT NOT NULL DEFAULT 0,
-ADD COLUMN level INT NOT NULL DEFAULT 1;
+ADD COLUMN level INT NOT NULL DEFAULT 1,
+ADD COLUMN role ENUM('user', 'admin')
+NOT NULL DEFAULT 'user';
+
+CREATE TABLE friend_requests (
+id INT AUTO_INCREMENT,
+sender_id INT NOT NULL,
+receiver_id INT NOT NULL,
+status ENUM ('pending', 'accepted', 'rejected') NOT NULL DEFAULT 'pending',
+created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+PRIMARY KEY (id),
+FOREIGN KEY (sender_id) REFERENCES users(id),
+FOREIGN KEY (receiver_id) REFERENCES users(id),
+CHECK (sender_id <> receiver_id)
+);
 
 CREATE TABLE artists (
 id INT AUTO_INCREMENT,
@@ -68,6 +82,14 @@ PRIMARY KEY (user_id, photocard_id),
 FOREIGN KEY (user_id) REFERENCES users(id),
 FOREIGN KEY (photocard_id) REFERENCES photocards(id),
 CHECK (quantity > 0)
+);
+
+CREATE TABLE user_wishlist (
+user_id INT NOT NULL,
+photocard_id INT NOT NULL,
+PRIMARY KEY (user_id, photocard_id),
+FOREIGN KEY (user_id) REFERENCES users(id),
+FOREIGN KEY (photocard_id) REFERENCES photocards(id)
 );
 
 CREATE TABLE missions (
@@ -138,4 +160,44 @@ collection_id INT NOT NULL,
 PRIMARY KEY (pack_id, collection_id),
 FOREIGN KEY (pack_id) REFERENCES packs(id),
 FOREIGN KEY (collection_id) REFERENCES collections(id)
+);
+
+CREATE TABLE shop_collections (
+id INT AUTO_INCREMENT,
+collection_id INT NOT NULL UNIQUE,
+price_dimas INT NOT NULL,
+PRIMARY KEY (id),
+FOREIGN KEY (collection_id) REFERENCES collections(id),
+CHECK (price_dimas >= 0)
+);
+
+CREATE TABLE user_purchases (
+id INT AUTO_INCREMENT,
+user_id INT NOT NULL,
+shop_collection_id INT NOT NULL,
+purchased_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+PRIMARY KEY (id),
+UNIQUE (user_id, shop_collection_id),
+FOREIGN KEY (user_id) REFERENCES users(id),
+FOREIGN KEY (shop_collection_id) REFERENCES shop_collections(id)
+);
+
+CREATE TABLE shop_currency_packs (
+id INT AUTO_INCREMENT,
+name VARCHAR(100) NOT NULL,
+coins_amount INT NOT NULL,
+price_dimas INT NOT NULL,
+PRIMARY KEY (id),
+CHECK (coins_amount > 0),
+CHECK (price_dimas >= 0)
+);
+
+CREATE TABLE shop_dimas_packs (
+id INT AUTO_INCREMENT,
+name VARCHAR(100) NOT NULL,
+dimas_amount INT NOT NULL,
+price_brl DECIMAL(6,2) NOT NULL,
+PRIMARY KEY (id),
+CHECK (dimas_amount > 0),
+CHECK (price_brl >= 0)
 );
