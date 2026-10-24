@@ -35,7 +35,16 @@ ADD COLUMN dimas INT NOT NULL DEFAULT 0,
 ADD COLUMN xp INT NOT NULL DEFAULT 0,
 ADD COLUMN level INT NOT NULL DEFAULT 1,
 ADD COLUMN role ENUM('user', 'admin')
-NOT NULL DEFAULT 'user';
+NOT NULL DEFAULT 'user',
+ADD CONSTRAINT chk_users_coins
+CHECK (coins >= 0),
+ADD CONSTRAINT chk_users_dimas
+CHECK (dimas >= 0),
+ADD CONSTRAINT chk_users_xp
+CHECK (xp >= 0),
+ADD CONSTRAINT chk_users_level
+CHECK (level >= 1);
+
 
 CREATE TABLE friend_requests (
 id INT AUTO_INCREMENT,
@@ -257,7 +266,15 @@ goal INT NOT NULL,
 reward_xp INT NOT NULL,
 reward_coins INT NOT NULL,
 reward_dimas INT NOT NULL,
-PRIMARY KEY (id)
+PRIMARY KEY (id),
+CONSTRAINT chk_missions_goal
+CHECK (goal > 0),
+CONSTRAINT chk_missions_xp
+CHECK (reward_xp >= 0),
+CONSTRAINT chk_missions_coins
+CHECK (reward_coins >= 0),
+CONSTRAINT chk_missions_dimas
+CHECK (reward_dimas >= 0)
 );
 
 
@@ -279,7 +296,9 @@ progress INT NOT NULL,
 completed BOOLEAN NOT NULL,
 PRIMARY KEY (user_id, mission_id),
 FOREIGN KEY (user_id) REFERENCES users(id),
-FOREIGN KEY (mission_id) REFERENCES missions(id)
+FOREIGN KEY (mission_id) REFERENCES missions(id),
+CONSTRAINT chk_user_missions_progress
+CHECK (progress >= 0)
 );
 
 
@@ -305,7 +324,15 @@ goal INT NOT NULL,
 reward_xp INT NOT NULL,
 reward_coins INT NOT NULL,
 reward_dimas INT NOT NULL,
-PRIMARY KEY (id)
+PRIMARY KEY (id),
+CONSTRAINT chk_achievements_goal
+CHECK (goal > 0),
+CONSTRAINT chk_achievements_xp
+CHECK (reward_xp >= 0),
+CONSTRAINT chk_achievements_coins
+CHECK (reward_coins >= 0),
+CONSTRAINT chk_achievements_dimas
+CHECK (reward_dimas >= 0)
 );
 
 
@@ -352,7 +379,11 @@ name VARCHAR(100) NOT NULL,
 price_coins INT NOT NULL,
 card_quantity INT NOT NULL,
 PRIMARY KEY (id),
+CONSTRAINT chk_packs_name
+CHECK (CHAR_LENGTH(TRIM(name)) > 0),
+CONSTRAINT chk_packs_price
 CHECK (price_coins >= 0),
+CONSTRAINT chk_packs_quantity
 CHECK (card_quantity > 0)
 );
 
@@ -372,6 +403,7 @@ rarity ENUM('common', 'uncommon', 'rare', 'ultra rare', 'special') NOT NULL,
 drop_chance DECIMAL(5,2) NOT NULL,
 PRIMARY KEY (pack_id, rarity),
 FOREIGN KEY (pack_id) REFERENCES packs(id),
+CONSTRAINT chk_pack_rarities_chance
 CHECK (drop_chance >= 0 AND drop_chance <= 100)
 );
 
@@ -442,6 +474,7 @@ collection_id INT NOT NULL UNIQUE,
 price_dimas INT NOT NULL,
 PRIMARY KEY (id),
 FOREIGN KEY (collection_id) REFERENCES collections(id),
+CONSTRAINT chk_shop_collections_price
 CHECK (price_dimas >= 0)
 );
 
@@ -497,7 +530,11 @@ name VARCHAR(100) NOT NULL,
 coins_amount INT NOT NULL,
 price_dimas INT NOT NULL,
 PRIMARY KEY (id),
+CONSTRAINT chk_currency_name
+CHECK (CHAR_LENGTH(TRIM(name)) > 0),
+CONSTRAINT chk_currency_coins
 CHECK (coins_amount > 0),
+CONSTRAINT chk_currency_price
 CHECK (price_dimas >= 0)
 );
 
@@ -515,7 +552,11 @@ name VARCHAR(100) NOT NULL,
 dimas_amount INT NOT NULL,
 price_brl DECIMAL(6,2) NOT NULL,
 PRIMARY KEY (id),
+CONSTRAINT chk_dimas_name
+CHECK (CHAR_LENGTH(TRIM(name)) > 0),
+CONSTRAINT chk_dimas_amount
 CHECK (dimas_amount > 0),
+CONSTRAINT chk_dimas_price
 CHECK (price_brl >= 0)
 );
 
